@@ -3,9 +3,11 @@
     "version": "0.0.0",
     "type": "module",
     "scripts": {
+        "start:expo": "expo start",
         "dev": "vite",
         "build": "vite build",
-        "preview": "vite preview"
+        "preview": "vite preview",
+        "postinstall": "npx update-browserslist-db@latest --update-db"
     },
     "dependencies": {
         "@emotion/react": "^11.10.6",
@@ -30,7 +32,9 @@
         "@x1mrdonut1x/nouislider-react": "^3.4.3",
         "apexcharts": "^3.37.1",
         "axios": "^1.8.4",
+        "date-fns": "^4.1.0",
         "easymde": "^2.18.0",
+        "expo": "^53.0.9",
         "formik": "^2.2.9",
         "highlight.js": "^11.6.0",
         "mantine-datatable": "^1.7.17",
@@ -42,10 +46,14 @@
         "react-click-away-listener": "^2.2.2",
         "react-copy-to-clipboard": "^5.1.0",
         "react-countup": "^6.3.2",
+        "react-datepicker": "^8.3.0",
         "react-dom": "^18.2.0",
         "react-export-table-to-excel": "^1.0.6",
         "react-flatpickr": "^3.10.13",
+        "react-helmet-async": "^2.0.5",
         "react-images-uploading": "^3.1.7",
+        "react-native": "^0.79.2",
+        "react-native-web": "^0.20.0",
         "react-popper": "^2.3.0",
         "react-quill": "^2.0.0",
         "react-redux": "^8.0.4",

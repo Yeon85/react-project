@@ -1,12 +1,14 @@
-import { combineReducers, configureStore } from '@reduxjs/toolkit';
-import themeConfigSlice from './themeConfigSlice';
+// src/store/index.ts
+import { configureStore } from '@reduxjs/toolkit';
+import themeConfigReducer from './themeConfigSlice';
+import userReducer from './userSlice'; // 추가한 사용자 Slice
 
-const rootReducer = combineReducers({
-    themeConfig: themeConfigSlice,
+export const store = configureStore({
+    reducer: {
+        user: userReducer,
+        themeConfig: themeConfigReducer,
+    },
 });
 
-export default configureStore({
-    reducer: rootReducer,
-});
-
-export type IRootState = ReturnType<typeof rootReducer>;
+export type IRootState = ReturnType<typeof store.getState>;
+export type AppDispatch = typeof store.dispatch;

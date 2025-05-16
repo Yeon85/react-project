@@ -12,11 +12,25 @@ import IconInstagram from '../../components/Icon/IconInstagram';
 import IconFacebookCircle from '../../components/Icon/IconFacebookCircle';
 import IconTwitter from '../../components/Icon/IconTwitter';
 import IconGoogle from '../../components/Icon/IconGoogle';
+import { loginUser } from '../../store/userSlice';
+
+import axios from 'axios'; // 위에 추가
+import ApplicationConfig from '../../application';
 
 const LoginBoxed = () => {
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+
+    const API_URL = ApplicationConfig.API_URL;
+
     const dispatch = useDispatch();
     useEffect(() => {
         dispatch(setPageTitle('Login Boxed'));
+        // ✅ 최초 세팅: 한국어(ko)로 강제 변경
+        i18next.changeLanguage('ko');
+        dispatch(toggleRTL('ltr'));
+        setFlag('ko');
+
     });
     const navigate = useNavigate();
     const isDark = useSelector((state: IRootState) => state.themeConfig.theme === 'dark' || state.themeConfig.isDarkMode);
@@ -32,9 +46,45 @@ const LoginBoxed = () => {
     };
     const [flag, setFlag] = useState(themeConfig.locale);
 
-    const submitForm = () => {
-        navigate('/');
+  
+    const submitForm = async (e: React.FormEvent) => {
+        e.preventDefault();
+        let response;
+        try {
+            response = await axios.post(`${API_URL}/api/login`, {
+                email,
+                password,
+            });
+    
+            alert(response.data.message); // 로그인 성공 메시지
+    
+            // ✅ Redux에 저장
+            dispatch(loginUser(response.data.user));
+    
+            // ✅ localStorage에도 저장 사용자 정보저장 
+            localStorage.setItem('user', JSON.stringify({
+                id:response.data.user.id,
+                name: response.data.user.name,
+                email: response.data.user.email,
+                profileImage: response.data.user.profileImage,  // 혹시 없으면 profileImage는 생략해도 됨
+                role_code:response.data.user.role_code,
+            }));
+    
+            // ✅ 추가정보 입력 여부 확인하고 이동
+            if (response.data.user.user_extra) {
+                navigate('/'); // 메인으로
+            } else {
+                navigate('/survey'); // 추가정보 작성페이지로
+            }
+        } catch (error: any) {
+            if (error.response) {
+                alert("에러메세지 ||" + error.response.data); // 에러 메시지 표시
+            } else {
+                alert('로그인 중 오류 발생2');
+            }
+        }
     };
+    
 
     return (
         <div>
@@ -92,14 +142,21 @@ const LoginBoxed = () => {
                         </div>
                         <div className="mx-auto w-full max-w-[440px]">
                             <div className="mb-10">
-                                <h1 className="text-3xl font-extrabold uppercase !leading-snug text-primary md:text-4xl">Sign in</h1>
+                                <h1 className="text-3xl font-extrabold uppercase !leading-snug text-primary md:text-4xl">로그인</h1>
                                 <p className="text-base font-bold leading-normal text-white-dark">Enter your email and password to login</p>
                             </div>
                             <form className="space-y-5 dark:text-white" onSubmit={submitForm}>
                                 <div>
                                     <label htmlFor="Email">Email</label>
                                     <div className="relative text-white-dark">
-                                        <input id="Email" type="email" placeholder="Enter Email" className="form-input ps-10 placeholder:text-white-dark" />
+                                        {/* <input id="Email" type="email" placeholder="Enter Email" className="form-input ps-10 placeholder:text-white-dark" /> */}
+                                        <input
+                                            type="email"
+                                            placeholder="이메일"
+                                            value={email}
+                                            onChange={(e) => setEmail(e.target.value)}
+                                            className="form-input ps-10 placeholder:text-white-dark"
+                                        />
                                         <span className="absolute start-4 top-1/2 -translate-y-1/2">
                                             <IconMail fill={true} />
                                         </span>
@@ -108,7 +165,14 @@ const LoginBoxed = () => {
                                 <div>
                                     <label htmlFor="Password">Password</label>
                                     <div className="relative text-white-dark">
-                                        <input id="Password" type="password" placeholder="Enter Password" className="form-input ps-10 placeholder:text-white-dark" />
+                                    <input
+                                            type="password"
+                                            placeholder="비밀번호"
+                                            value={password}
+                                            onChange={(e) => setPassword(e.target.value)}
+                                           className="form-input ps-10 placeholder:text-white-dark"
+                                        />
+                                        {/* <input id="Password" type="password" placeholder="Enter Password" className="form-input ps-10 placeholder:text-white-dark" /> */}
                                         <span className="absolute start-4 top-1/2 -translate-y-1/2">
                                             <IconLockDots fill={true} />
                                         </span>
@@ -121,7 +185,7 @@ const LoginBoxed = () => {
                                     </label>
                                 </div>
                                 <button type="submit" className="btn btn-gradient !mt-6 w-full border-0 uppercase shadow-[0_10px_20px_-10px_rgba(67,97,238,0.44)]">
-                                    Sign in
+                                    로그인1212
                                 </button>
                             </form>
                             <div className="relative my-7 text-center md:mb-9">
@@ -171,7 +235,7 @@ const LoginBoxed = () => {
                             <div className="text-center dark:text-white">
                                 Don't have an account ?&nbsp;
                                 <Link to="/auth/boxed-signup" className="uppercase text-primary underline transition hover:text-black dark:hover:text-white">
-                                    SIGN UP
+                                 회원가입(sign up)
                                 </Link>
                             </div>
                         </div>

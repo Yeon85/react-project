@@ -1,0 +1,19 @@
+{
+
+    "sqltools.connections": [
+        {
+            "mysqlOptions": {
+                "authProtocol": "default",
+                "enableSsl": "Disabled"
+            },
+            "previewLimit": 50,
+            "server": "boot1-db.c7s6ai8cszkl.ap-northeast-2.rds.amazonaws.com",
+            "port": 3306,
+            "driver": "MySQL",
+            "password": "icanspeak",
+            "name": "AWSD",
+            "username": "master",
+            "database": "boot1DB"
+        }
+    ]
+}

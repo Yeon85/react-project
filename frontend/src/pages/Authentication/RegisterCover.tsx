@@ -15,14 +15,14 @@ import IconTwitter from '../../components/Icon/IconTwitter';
 import IconGoogle from '../../components/Icon/IconGoogle';
 
 import axios from 'axios'; // 위에 추가
-
-
-
+import ApplicationConfig from '../../application';
 
 const RegisterCover = () => {
     const [name, setName] = useState('');
+    const [userId, setUserId] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const API_URL = ApplicationConfig.API_URL;	
 
     const dispatch = useDispatch();
     useEffect(() => {
@@ -41,16 +41,13 @@ const RegisterCover = () => {
     };
     const [flag, setFlag] = useState(themeConfig.locale);
 
-    // const submitForm = () => {
-    //     navigate('/');
-    // };
-
     const submitForm = async (e: React.FormEvent) => {
         console.log("e: React.FormEvent:",e);
         e.preventDefault();
     
         try {
-            const response = await axios.post('/api/register', {
+            const response = await axios.post(`${VITE_URL}/api/register`, {
+                userId,
                 name,
                 email,
                 password,
@@ -195,7 +192,7 @@ const RegisterCover = () => {
                                     </label>
                                 </div>
                                 <button type="submit" className="btn btn-gradient !mt-6 w-full border-0 uppercase shadow-[0_10px_20px_-10px_rgba(67,97,238,0.44)]">
-                                    Sign Up
+                                    Sign Up1
                                 </button>
                             </form>
 
@@ -246,7 +243,7 @@ const RegisterCover = () => {
                             <div className="text-center dark:text-white">
                                 Already have an account ?&nbsp;
                                 <Link to="/auth/cover-login" className="uppercase text-primary underline transition hover:text-black dark:hover:text-white">
-                                    SIGN IN
+                                    SIGN IN2
                                 </Link>
                             </div>
                         </div>

@@ -12,6 +12,7 @@ import IconSearch from '../../components/Icon/IconSearch';
 import IconMessagesDot from '../../components/Icon/IconMessagesDot';
 import IconPhone from '../../components/Icon/IconPhone';
 import IconUserPlus from '../../components/Icon/IconUserPlus';
+import IconUser from '../../components/Icon/IconUser';
 import IconBell from '../../components/Icon/IconBell';
 import IconMenu from '../../components/Icon/IconMenu';
 import IconMessage from '../../components/Icon/IconMessage';
@@ -25,304 +26,165 @@ import IconSend from '../../components/Icon/IconSend';
 import IconMicrophoneOff from '../../components/Icon/IconMicrophoneOff';
 import IconDownload from '../../components/Icon/IconDownload';
 import IconCamera from '../../components/Icon/IconCamera';
+import ApplicationConfig from '../../application';
+import axios from 'axios';
+//import { useSelector } from "react-redux";
+//import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
-const contactList = [
-    {
-        userId: 1,
-        name: 'Nia Hillyer',
-        path: 'profile-16.jpeg',
-        time: '2:09 PM',
-        preview: 'How do you do?',
-        messages: [
-            {
-                fromUserId: 0,
-                toUserId: 1,
-                text: 'Hi, I am back from vacation',
-            },
-            {
-                fromUserId: 0,
-                toUserId: 1,
-                text: 'How are you?',
-            },
-            {
-                fromUserId: 1,
-                toUserId: 0,
-                text: 'Welcom Back',
-            },
-            {
-                fromUserId: 1,
-                toUserId: 0,
-                text: 'I am all well',
-            },
-            {
-                fromUserId: 0,
-                toUserId: 1,
-                text: 'Coffee?',
-            },
-        ],
-        active: true,
-    },
-    {
-        userId: 2,
-        name: 'Sean Freeman',
-        path: 'profile-1.jpeg',
-        time: '12:09 PM',
-        preview: 'I was wondering...',
-        messages: [
-            {
-                fromUserId: 0,
-                toUserId: 2,
-                text: 'Hello',
-            },
-            {
-                fromUserId: 0,
-                toUserId: 2,
-                text: "It's me",
-            },
-            {
-                fromUserId: 0,
-                toUserId: 2,
-                text: 'I have a question regarding project.',
-            },
-        ],
-        active: false,
-    },
-    {
-        userId: 3,
-        name: 'Alma Clarke',
-        path: 'profile-2.jpeg',
-        time: '1:44 PM',
-        preview: 'I’ve forgotten how it felt before',
-        messages: [
-            {
-                fromUserId: 0,
-                toUserId: 3,
-                text: 'Hey Buddy.',
-            },
-            {
-                fromUserId: 0,
-                toUserId: 3,
-                text: "What's up",
-            },
-            {
-                fromUserId: 3,
-                toUserId: 0,
-                text: 'I am sick',
-            },
-            {
-                fromUserId: 0,
-                toUserId: 3,
-                text: 'Not comming to office today.',
-            },
-        ],
-        active: true,
-    },
-    {
-        userId: 4,
-        name: 'Alan Green',
-        path: 'profile-3.jpeg',
-        time: '2:06 PM',
-        preview: 'But we’re probably gonna need a new carpet.',
-        messages: [
-            {
-                fromUserId: 0,
-                toUserId: 4,
-                text: 'Hi, collect your check',
-            },
-            {
-                fromUserId: 4,
-                toUserId: 0,
-                text: 'Ok, I will be there in 10 mins',
-            },
-        ],
-        active: true,
-    },
-    {
-        userId: 5,
-        name: 'Shaun Park',
-        path: 'profile-4.jpeg',
-        time: '2:05 PM',
-        preview: 'It’s not that bad...',
-        messages: [
-            {
-                fromUserId: 0,
-                toUserId: 3,
-                text: 'Hi, I am back from vacation',
-            },
-            {
-                fromUserId: 0,
-                toUserId: 3,
-                text: 'How are you?',
-            },
-            {
-                fromUserId: 0,
-                toUserId: 5,
-                text: 'Welcom Back',
-            },
-            {
-                fromUserId: 0,
-                toUserId: 5,
-                text: 'I am all well',
-            },
-            {
-                fromUserId: 5,
-                toUserId: 0,
-                text: 'Coffee?',
-            },
-        ],
-        active: false,
-    },
-    {
-        userId: 6,
-        name: 'Roxanne',
-        path: 'profile-5.jpeg',
-        time: '2:00 PM',
-        preview: 'Wasup for the third time like is you bling bitch',
-        messages: [
-            {
-                fromUserId: 0,
-                toUserId: 6,
-                text: 'Hi',
-            },
-            {
-                fromUserId: 0,
-                toUserId: 6,
-                text: 'Uploaded files to server.',
-            },
-        ],
-        active: false,
-    },
-    {
-        userId: 7,
-        name: 'Ernest Reeves',
-        path: 'profile-6.jpeg',
-        time: '2:09 PM',
-        preview: 'Wasup for the third time like is you bling bitch',
-        messages: [],
-        active: true,
-    },
-    {
-        userId: 8,
-        name: 'Laurie Fox',
-        path: 'profile-7.jpeg',
-        time: '12:09 PM',
-        preview: 'Wasup for the third time like is you bling bitch',
-        messages: [],
-        active: true,
-    },
-    {
-        userId: 9,
-        name: 'Xavier',
-        path: 'profile-8.jpeg',
-        time: '4:09 PM',
-        preview: 'Wasup for the third time like is you bling bitch',
-        messages: [],
-        active: false,
-    },
-    {
-        userId: 10,
-        name: 'Susan Phillips',
-        path: 'profile-9.jpeg',
-        time: '9:00 PM',
-        preview: 'Wasup for the third time like is you bling bitch',
-        messages: [],
-        active: true,
-    },
-    {
-        userId: 11,
-        name: 'Dale Butler',
-        path: 'profile-10.jpeg',
-        time: '5:09 PM',
-        preview: 'Wasup for the third time like is you bling bitch',
-        messages: [],
-        active: false,
-    },
-    {
-        userId: 12,
-        name: 'Grace Roberts',
-        path: 'user-profile.jpeg',
-        time: '8:01 PM',
-        preview: 'Wasup for the third time like is you bling bitch',
-        messages: [],
-        active: true,
-    },
-];
-const loginUser = {
-    id: 0,
-    name: 'Alon Smith',
-    path: 'profile-34.jpeg',
-    designation: 'Software Developer',
-};
 const Chat = () => {
+   // const user = useSelector((state) => state.user); // 🔥 Redux user
+   const formatDateTime = (timeString: string) => {
+        const date = new Date(timeString);
+        const year = date.getFullYear();
+        const month = (date.getMonth() + 1).toString().padStart(2, '0'); // 월은 0부터 시작이라 +1
+        const day = date.getDate().toString().padStart(2, '0');
+        const hours = date.getHours().toString().padStart(2, '0');
+        const minutes = date.getMinutes().toString().padStart(2, '0');
+
+        return `${year}-${month}-${day} ${hours}:${minutes}`;
+    };
+    const navigate = useNavigate();
     const dispatch = useDispatch();
-    useEffect(() => {
-        dispatch(setPageTitle('Chat'));
-    });
-    const isRtl = useSelector((state: IRootState) => state.themeConfig.rtlClass) === 'rtl' ? true : false;
+    const user = useSelector((state: IRootState) => state.user); // 🔥 Redux에서 로그인 유저 가져오기
+    const loginUser = {
+        id: user.id,
+        name: user.name,
+        path: user.profileImage,  // ✅ userSlice에서 관리하는 프로필 이미지 경로
+        designation: user.job_title || 'User',  // 직책이 없으면 기본값 "User"
+    };
+
+    const isRtl = useSelector((state: IRootState) => state.themeConfig.rtlClass) === 'rtl';
     const isDark = useSelector((state: IRootState) => state.themeConfig.theme === 'dark' || state.themeConfig.isDarkMode);
 
-    const [isShowChatMenu, setIsShowChatMenu] = useState(false);
+    const API_URL = ApplicationConfig.API_URL;
+
+    const [contactList, setContactList] = useState<any[]>([]);
     const [searchUser, setSearchUser] = useState('');
     const [isShowUserChat, setIsShowUserChat] = useState(false);
     const [selectedUser, setSelectedUser] = useState<any>(null);
+    const [isShowChatMenu, setIsShowChatMenu] = useState(false);
     const [textMessage, setTextMessage] = useState('');
-    const [filteredItems, setFilteredItems] = useState<any>(contactList);
+    //const [filteredItems, setFilteredItems] = useState<any>(contactList);
+    const [filteredItems, setFilteredItems] = useState<any[]>([]);
+
+    useEffect(() => {
+        console.log("user", user);
+
+        if (!user.id) {
+          console.log("로그아웃 상태입니다. 로그인 페이지로 이동합니다.");
+          navigate("/auth/boxed-signin"); // 또는 원하는 경로로 리다이렉트
+        }
+       // if (user.id) {
+            //dispatch(setPageTitle('Chat'));
+            fetchContacts();
+       // }
+    }, [user.id]);
+
+    console.log("user",user); // ✅ Redux user 확인하기
+
+    const fetchContacts = async () => {
+        try {
+            const response = await axios.get(`${API_URL}/api/contacts/${user.id}`);
+            const contacts = response.data.contacts;
+            const messages = response.data.messages;
+            console.log("contacts:",contacts);
+             console.log("messages:",messages);
+            if (Array.isArray(contacts)) {
+                setContactList(contacts);
+                setFilteredItems(messages);
+            } else {
+                console.error('서버 응답이 배열이 아님:', contacts);
+                setContactList([]);
+                setFilteredItems([]);
+            }
+        } catch (error) {
+           // 가져오기 실패', error);
+            setContactList([]);
+            setFilteredItems([]);
+        }
+    };
 
     useEffect(() => {
         setFilteredItems(() => {
-            return contactList.filter((d) => {
-                return d.name.toLowerCase().includes(searchUser.toLowerCase());
-            });
+            return contactList.filter((d) => d.name.toLowerCase().includes(searchUser.toLowerCase()));
         });
-    }, [searchUser]);
+    }, [searchUser, contactList]);
 
-    const scrollToBottom = () => {
-        if (isShowUserChat) {
-            setTimeout(() => {
-                const element: any = document.querySelector('.chat-conversation-box');
-                element.behavior = 'smooth';
-                element.scrollTop = element.scrollHeight;
-            });
-        }
-    };
     const selectUser = (user: any) => {
         setSelectedUser(user);
         setIsShowUserChat(true);
         scrollToBottom();
         setIsShowChatMenu(false);
     };
-    const sendMessage = () => {
-        if (textMessage.trim()) {
-            let list = contactList;
-            let user: any = list.find((d) => d.userId === selectedUser.userId);
-            user.messages.push({
-                fromUserId: selectedUser.userId,
-                toUserId: 0,
-                text: textMessage,
-                time: 'Just now',
-            });
-            setFilteredItems(list);
-            setTextMessage('');
-            scrollToBottom();
+
+    const scrollToBottom = () => {
+        setTimeout(() => {
+            const element: any = document.querySelector('.chat-conversation-box');
+            if (element) {
+                element.scrollTop = element.scrollHeight;
+            }
+        });
+    };
+
+    const sendMessage = async () => {
+        if (textMessage.trim() && selectedUser) {
+            try {
+                const newMessage = {
+                    contactId: selectedUser.messages[0].contactId, // ✅ 이거 추가
+                    fromUserId: loginUser.id,
+                    toUserId: selectedUser.userId,
+                    text: textMessage,
+                };
+    
+                // 1. 서버로 메시지 전송 (DB 저장)
+                await axios.post(`${API_URL}/api/messages`, newMessage);
+    
+                // 2. 성공하면 화면에도 반영
+                const updatedList = [...contactList];
+                const user = updatedList.find((d) => d.userId === selectedUser.userId);
+    
+                if (user) {
+                    if (!user.messages) {
+                        user.messages = [];
+                    }
+                    user.messages.push({
+                        ...newMessage,
+                        time: new Date().toISOString(), // 시간 직접 추가
+                    });
+                    setContactList(updatedList);
+                    setFilteredItems(updatedList);
+                }
+    
+                // 3. 입력창 비우기
+                setTextMessage('');
+                scrollToBottom();
+            } catch (error) {
+                console.error('메시지 보내기 실패:', error);
+                alert('메시지를 보내는 데 실패했습니다.');
+            }
         }
     };
-    const sendMessageHandle = (event: any) => {
-        if (event.key === 'Enter') {
+
+    const sendMessageHandle = (e: any) => {
+        if (e.key === 'Enter') {
             sendMessage();
         }
     };
+
     return (
         <div>
             <div className={`flex gap-5 relative sm:h-[calc(100vh_-_150px)] h-full sm:min-h-0 ${isShowChatMenu ? 'min-h-[999px]' : ''}`}>
-                <div className={`panel p-4 flex-none max-w-xs w-full absolute xl:relative z-10 space-y-4 xl:h-full hidden xl:block overflow-hidden ${isShowChatMenu ? '!block' : ''}`}>
+                <div className={`panel p-0 flex-none max-w-xs w-full absolute xl:relative z-10 space-y-4 xl:h-full hidden xl:block overflow-hidden ${isShowChatMenu ? '!block' : ''}`}>
+                    <div className="p-4">
                     <div className="flex justify-between items-center">
                         <div className="flex items-center">
                             <div className="flex-none">
-                                <img src="/assets/images/profile-34.jpeg" className="rounded-full h-12 w-12 object-cover" alt="" />
+                            <img src={`${API_URL}${user.profileImage}`} alt="img" className="w-24 h-24 rounded-full object-cover  mb-5" />
                             </div>
                             <div className="mx-3">
-                                <p className="mb-1 font-semibold">Alon Smith</p>
-                                <p className="text-xs text-white-dark">Software Developer</p>
+                                <p className="mb-1 font-semibold">{user.name}</p>
+                                <p className="text-xs text-white-dark">{user.email}</p> 
                             </div>
                         </div>
                         <div className="dropdown">
@@ -361,16 +223,26 @@ const Chat = () => {
                             <IconSearch />
                         </div>
                     </div>
-                    <div className="flex justify-between items-center text-xs">
+                    <div className="flex justify-between items-center text-xs mt-4">
+                        <button type="button" className="hover:text-primary">
+                            <IconUser className="mx-auto mb-1" />
+                            Users
+                        </button>
+
                         <button type="button" className="hover:text-primary">
                             <IconMessagesDot className="mx-auto mb-1" />
                             Chats
                         </button>
 
-                        <button type="button" className="hover:text-primary">
+                        <button
+                            type="button"
+                            className="hover:text-primary"
+                            onClick={() => navigate('/call')} // ✅ 클릭 시 이동
+                        >
                             <IconPhone className="mx-auto mb-1" />
                             Calls
                         </button>
+
 
                         <button type="button" className="hover:text-primary">
                             <IconUserPlus className="mx-auto mb-1" />
@@ -384,10 +256,10 @@ const Chat = () => {
                     </div>
                     <div className="h-px w-full border-b border-white-light dark:border-[#1b2e4b]"></div>
                     <div className="!mt-0">
-                        <PerfectScrollbar className="chat-users relative h-full min-h-[100px] sm:h-[calc(100vh_-_357px)] space-y-0.5 ltr:pr-3.5 rtl:pl-3.5 ltr:-mr-3.5 rtl:-ml-3.5">
-                            {filteredItems.map((person: any) => {
-                                return (
-                                    <div key={person.userId}>
+                     <PerfectScrollbar className="chat-users relative h-full min-h-[100px] sm:h-[calc(100vh_-_357px)] space-y-0.5 ltr:pr-3.5 rtl:pl-3.5 ltr:-mr-3.5 rtl:-ml-3.5">
+                        {filteredItems && filteredItems.length > 0 ? (
+                            filteredItems.map((person: any) => (
+                                <div key={person.userId}>
                                         <button
                                             type="button"
                                             className={`w-full flex justify-between items-center p-2 hover:bg-gray-100 dark:hover:bg-[#050b14] rounded-md dark:hover:text-primary hover:text-primary ${
@@ -417,10 +289,13 @@ const Chat = () => {
                                                 <p>{person.time}</p>
                                             </div>
                                         </button>
-                                    </div>
-                                );
-                            })}
-                        </PerfectScrollbar>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <div className="text-center text-gray-400 p-4">No contacts found</div>
+                                )}
+                            </PerfectScrollbar>
+                    </div>
                     </div>
                 </div>
                 <div className={`bg-black/60 z-[5] w-full h-full absolute rounded-md hidden ${isShowChatMenu ? '!block xl:!hidden' : ''}`} onClick={() => setIsShowChatMenu(!isShowChatMenu)}></div>
@@ -550,7 +425,7 @@ const Chat = () => {
                                         <IconMenu />
                                     </button>
                                     <div className="relative flex-none">
-                                        <img src={`/assets/images/${selectedUser.path}`} className="rounded-full w-10 h-10 sm:h-12 sm:w-12 object-cover" alt="" />
+                                          <img src={`/assets/images/${selectedUser.path}`} className="rounded-full w-10 h-10 sm:h-12 sm:w-12 object-cover" alt="" />
                                         <div className="absolute bottom-0 ltr:right-0 rtl:left-0">
                                             <div className="w-4 h-4 bg-success rounded-full"></div>
                                         </div>
@@ -624,14 +499,14 @@ const Chat = () => {
                                             {selectedUser.messages.map((message: any, index: any) => {
                                                 return (
                                                     <div key={index}>
-                                                        <div className={`flex items-start gap-3 ${selectedUser.userId === message.fromUserId ? 'justify-end' : ''}`}>
-                                                            <div className={`flex-none ${selectedUser.userId === message.fromUserId ? 'order-2' : ''}`}>
-                                                                {selectedUser.userId === message.fromUserId ? (
-                                                                    <img src={`/assets/images/${loginUser.path}`} className="rounded-full h-10 w-10 object-cover" alt="" />
+                                                        <div className={`flex items-start gap-3 ${loginUser.id  === message.fromUserId ? 'justify-end' : ''}`}>
+                                                            <div className={`flex-none ${loginUser.id  === message.fromUserId ? 'order-2' : ''}`}>
+                                                                {loginUser.id  === message.fromUserId ? (
+                                                                    <img src={`${API_URL}${user.profileImage}`} className="rounded-full h-10 w-10 object-cover" alt="" />
                                                                 ) : (
                                                                     ''
                                                                 )}
-                                                                {selectedUser.userId !== message.fromUserId ? (
+                                                                {loginUser.id !== message.fromUserId ? (
                                                                     <img src={`/assets/images/${selectedUser.path}`} className="rounded-full h-10 w-10 object-cover" alt="" />
                                                                 ) : (
                                                                     ''
@@ -648,12 +523,12 @@ const Chat = () => {
                                                                     >
                                                                         {message.text}
                                                                     </div>
-                                                                    <div className={`${selectedUser.userId === message.fromUserId ? 'hidden' : ''}`}>
+                                                                    <div className={`${loginUser.id === message.fromUserId ? 'hidden' : ''}`}>
                                                                         <IconMoodSmile className="hover:text-primary" />
                                                                     </div>
                                                                 </div>
-                                                                <div className={`text-xs text-white-dark ${selectedUser.userId === message.fromUserId ? 'ltr:text-right rtl:text-left' : ''}`}>
-                                                                    {message.time ? message.time : '5h ago'}
+                                                                <div className={`text-xs text-white-dark ${loginUser.id === message.fromUserId ? 'ltr:text-right rtl:text-left' : ''}`}>
+                                                                {message.time ? formatDateTime(message.time) : '5h ago'}
                                                                 </div>
                                                             </div>
                                                         </div>

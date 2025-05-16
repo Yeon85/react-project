@@ -6,17 +6,77 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import { Fragment, useEffect, useState } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
 import Swal from 'sweetalert2';
-import { useDispatch } from 'react-redux';
+import { useDispatch,useSelector } from 'react-redux';
 import { setPageTitle } from '../../store/themeConfigSlice';
 import IconPlus from '../../components/Icon/IconPlus';
 import IconX from '../../components/Icon/IconX';
+//추가
+import axios from 'axios';
+import { IRootState } from '../../store';
+import { useRef } from 'react';
+import ApplicationConfig from '../../application';
+
+function getDefaultStartDateTime() {
+    const now = new Date();
+    now.setHours(8, 30, 0, 0);
+    return now.toISOString().slice(0, 16);
+  }
+  
+  function getDefaultEndDateTime() {
+    const now = new Date();
+    now.setHours(9, 30, 0, 0);
+    return now.toISOString().slice(0, 16);
+  }
 
 const Calendar = () => {
     const dispatch = useDispatch();
+    const titleRef = useRef<HTMLInputElement>(null);
+    const startRef = useRef<HTMLInputElement>(null);
+    const endRef = useRef<HTMLInputElement>(null);
+    const API_URL = ApplicationConfig.API_URL;
+
     useEffect(() => {
         dispatch(setPageTitle('Calendar'));
-    });
+    
+        const fetchData = async () => {
+            try {
+                await fetchEvents();
+            } catch (error) {
+                console.error('이벤트 불러오기 실패', error);
+            }
+        };
+    
+        fetchData();
+    }, [dispatch]);
     const now = new Date();
+    const fetchEvents = async () => {
+        try {
+            const res = await axios.get(`${API_URL}/api/calendar`);
+            setEvents(res.data);
+        } catch (err) {
+            console.error('일정 불러오기 실패:', err);
+        }
+    };
+    const deleteEvent = async (id: number) => {
+        console.log('DB 삭제 요청:', id);
+        if (!id) {
+            console.error('삭제할 ID가 없습니다.');
+            showMessage('삭제할 ID가 없습니다.', 'error');
+            return;
+        }
+
+        try {
+
+            await axios.delete(`${API_URL}/api/calendar/${id}`);
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            showMessage('Event has been deleted.', 'success');
+            fetchEvents();
+        
+        } catch (err) {
+            console.error('DB 삭제 실패:', err);
+            showMessage('Event deletion failed.', 'error');
+        }
+    };
     const getMonth = (dt: Date, add: number = 0) => {
         let month = dt.getMonth() + 1 + add;
         const str = (month < 10 ? '0' + month : month).toString();
@@ -24,110 +84,23 @@ const Calendar = () => {
         // return dt.getMonth() < 10 ? '0' + month : month;
     };
 
-    const [events, setEvents] = useState<any>([
-        {
-            id: 1,
-            title: 'All Day Event',
-            start: now.getFullYear() + '-' + getMonth(now) + '-01T14:30:00',
-            end: now.getFullYear() + '-' + getMonth(now) + '-02T14:30:00',
-            className: 'danger',
-            description: 'Aenean fermentum quam vel sapien rutrum cursus. Vestibulum imperdiet finibus odio, nec tincidunt felis facilisis eu.',
-        },
-        {
-            id: 2,
-            title: 'Site Visit',
-            start: now.getFullYear() + '-' + getMonth(now) + '-07T19:30:00',
-            end: now.getFullYear() + '-' + getMonth(now) + '-08T14:30:00',
-            className: 'primary',
-            description: 'Etiam a odio eget enim aliquet laoreet. Vivamus auctor nunc ultrices varius lobortis.',
-        },
-        {
-            id: 3,
-            title: 'Product Lunching Event',
-            start: now.getFullYear() + '-' + getMonth(now) + '-17T14:30:00',
-            end: now.getFullYear() + '-' + getMonth(now) + '-18T14:30:00',
-            className: 'info',
-            description: 'Proin et consectetur nibh. Mauris et mollis purus. Ut nec tincidunt lacus. Nam at rutrum justo, vitae egestas dolor.',
-        },
-        {
-            id: 4,
-            title: 'Meeting',
-            start: now.getFullYear() + '-' + getMonth(now) + '-12T10:30:00',
-            end: now.getFullYear() + '-' + getMonth(now) + '-13T10:30:00',
-            className: 'danger',
-            description: 'Mauris ut mauris aliquam, fringilla sapien et, dignissim nisl. Pellentesque ornare velit non mollis fringilla.',
-        },
-        {
-            id: 5,
-            title: 'Lunch',
-            start: now.getFullYear() + '-' + getMonth(now) + '-12T15:00:00',
-            end: now.getFullYear() + '-' + getMonth(now) + '-13T15:00:00',
-            className: 'info',
-            description: 'Integer fermentum bibendum elit in egestas. Interdum et malesuada fames ac ante ipsum primis in faucibus.',
-        },
-        {
-            id: 6,
-            title: 'Conference',
-            start: now.getFullYear() + '-' + getMonth(now) + '-12T21:30:00',
-            end: now.getFullYear() + '-' + getMonth(now) + '-13T21:30:00',
-            className: 'success',
-            description:
-                'Curabitur facilisis vel elit sed dapibus. Nunc sagittis ex nec ante facilisis, sed sodales purus rhoncus. Donec est sapien, porttitor et feugiat sed, eleifend quis sapien. Sed sit amet maximus dolor.',
-        },
-        {
-            id: 7,
-            title: 'Happy Hour',
-            start: now.getFullYear() + '-' + getMonth(now) + '-12T05:30:00',
-            end: now.getFullYear() + '-' + getMonth(now) + '-13T05:30:00',
-            className: 'info',
-            description: ' odio lectus, porttitor molestie scelerisque blandit, hendrerit sed ex. Aenean malesuada iaculis erat, vitae blandit nisl accumsan ut.',
-        },
-        {
-            id: 8,
-            title: 'Dinner',
-            start: now.getFullYear() + '-' + getMonth(now) + '-12T20:00:00',
-            end: now.getFullYear() + '-' + getMonth(now) + '-13T20:00:00',
-            className: 'danger',
-            description: 'Sed purus urna, aliquam et pharetra ut, efficitur id mi. Pellentesque ut convallis velit. Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
-        },
-        {
-            id: 9,
-            title: 'Birthday Party',
-            start: now.getFullYear() + '-' + getMonth(now) + '-27T20:00:00',
-            end: now.getFullYear() + '-' + getMonth(now) + '-28T20:00:00',
-            className: 'success',
-            description: 'Sed purus urna, aliquam et pharetra ut, efficitur id mi. Pellentesque ut convallis velit. Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
-        },
-        {
-            id: 10,
-            title: 'New Talent Event',
-            start: now.getFullYear() + '-' + getMonth(now, 1) + '-24T08:12:14',
-            end: now.getFullYear() + '-' + getMonth(now, 1) + '-27T22:20:20',
-            className: 'danger',
-            description: 'Sed purus urna, aliquam et pharetra ut, efficitur id mi. Pellentesque ut convallis velit. Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
-        },
-        {
-            id: 11,
-            title: 'Other new',
-            start: now.getFullYear() + '-' + getMonth(now, -1) + '-13T08:12:14',
-            end: now.getFullYear() + '-' + getMonth(now, -1) + '-16T22:20:20',
-            className: 'primary',
-            description: 'Pellentesque ut convallis velit. Sed purus urna, aliquam et pharetra ut, efficitur id mi. Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
-        },
-        {
-            id: 13,
-            title: 'Upcoming Event',
-            start: now.getFullYear() + '-' + getMonth(now, 1) + '-15T08:12:14',
-            end: now.getFullYear() + '-' + getMonth(now, 1) + '-18T22:20:20',
-            className: 'primary',
-            description: 'Pellentesque ut convallis velit. Sed purus urna, aliquam et pharetra ut, efficitur id mi. Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
-        },
-    ]);
+    const [events, setEvents] = useState<any>([]); // 👉 초기는 빈 배열
+         
     const [isAddEventModal, setIsAddEventModal] = useState(false);
     const [minStartDate, setMinStartDate] = useState<any>('');
     const [minEndDate, setMinEndDate] = useState<any>('');
-    const defaultParams = { id: null, title: '', start: '', end: '', description: '', type: 'primary' };
-    const [params, setParams] = useState<any>(defaultParams);
+    //const defaultParams = { id: null, title: '', start: getDefaultStartDateTime(), end: '', description: '', type: 'primary' };
+    // const [params, setParams] = useState<any>(defaultParams);
+     const [params, setParams] = useState({
+       id: null,
+       title: '',
+       start: getDefaultStartDateTime(),
+       end: getDefaultEndDateTime(),
+       description: '',
+       type: 'primary',
+     });
+   
+
     const dateFormat = (dt: any) => {
         dt = new Date(dt);
         const month = dt.getMonth() + 1 < 10 ? '0' + (dt.getMonth() + 1) : dt.getMonth() + 1;
@@ -138,7 +111,7 @@ const Calendar = () => {
         return dt;
     };
     const editEvent = (data: any = null) => {
-        let params = JSON.parse(JSON.stringify(defaultParams));
+       // let params = JSON.parse(JSON.stringify(params));
         setParams(params);
         if (data) {
             let obj = JSON.parse(JSON.stringify(data.event));
@@ -167,60 +140,94 @@ const Calendar = () => {
         };
         editEvent(obj);
     };
-
-    const saveEvent = () => {
+    const validationCheck = () => {
         if (!params.title) {
-            return true;
+            showMessage('Please enter the event title.', 'error');
+            titleRef.current?.focus(); // 제목 input으로 커서 이동
+            return false;
         }
         if (!params.start) {
-            return true;
+            showMessage('Please select a start date/time.', 'error');
+            startRef.current?.focus(); // 시작일 input으로 커서 이동
+            return false;
         }
         if (!params.end) {
-            return true;
+            showMessage('Please select an end date/time.', 'error');
+            endRef.current?.focus(); // 종료일 input으로 커서 이동
+            return false;
         }
-        if (params.id) {
-            //update event
-            let dataevent = events || [];
-            let event: any = dataevent.find((d: any) => d.id === parseInt(params.id));
-            event.title = params.title;
-            event.start = params.start;
-            event.end = params.end;
-            event.description = params.description;
-            event.className = params.type;
-
-            setEvents([]);
-            setTimeout(() => {
-                setEvents(dataevent);
-            });
-        } else {
-            //add event
-            let maxEventId = 0;
-            if (events) {
-                maxEventId = events.reduce((max: number, character: any) => (character.id > max ? character.id : max), events[0].id);
-            }
-            maxEventId = maxEventId + 1;
-            let event = {
-                id: maxEventId,
-                title: params.title,
-                start: params.start,
-                end: params.end,
-                description: params.description,
-                className: params.type,
-            };
-            let dataevent = events || [];
-            dataevent = dataevent.concat([event]);
-            setTimeout(() => {
-                setEvents(dataevent);
-            });
+        if (new Date(params.start) > new Date(params.end)) {
+            showMessage('Start time cannot be later than end time.', 'error');
+            startRef.current?.focus(); // 시작일 잘못됐으면 시작일로 커서 이동
+            return false;
         }
-        showMessage('Event has been saved successfully.');
-        setIsAddEventModal(false);
+        return true;
     };
+
+    // ✨ 새로운 함수
+    const user = useSelector((state: IRootState) => state.user); // ✅ Redux user 가져오기
+    const role = useSelector((state) => user.role_code);
+    const roleCheck = () => {
+        console.log(user?.role_code);   
+        if (user?.role_code !== 'admin') {
+            showMessage('Only admin users can create or edit events.', 'error');
+            return false;
+        }
+        return true;
+    };
+
+    const saveEvent = async () => {
+        if (!validationCheck()) {
+            return; // 🔥 validation 실패하면 저장 안 함
+        }
+        if (!roleCheck()) return;
+    
+        try {
+            if (params.id) {
+                // ✅ 기존 이벤트 수정 (Update)
+                await axios.put(`${API_URL}/api/calendar/${params.id}`, {
+                    title: params.title,
+                    start: params.start,
+                    end: params.end,
+                    className: params.type,
+                    description: params.description,
+                });
+    
+                showMessage('Event has been updated.', 'success');
+            } else {
+                // ✅ 새 이벤트 추가 (Create)
+                await axios.post(`${API_URL}/api/calendar`, {
+                    title: params.title,
+                    start: params.start,
+                    end: params.end,
+                    className: params.type,
+                    description: params.description,
+                });
+    
+                showMessage('Event has been created.', 'success');
+            }
+    
+            // 🔥 저장 후 일정 새로 불러오기
+            await new Promise(resolve => setTimeout(resolve, 100));
+            fetchEvents();
+    
+            setIsAddEventModal(false);
+    
+        } catch (err) {
+            console.error('DB 저장 실패:', err);
+            showMessage('Event saving failed.', 'error');
+        }
+    };
+    
     const startDateChange = (event: any) => {
         const dateStr = event.target.value;
         if (dateStr) {
-            setMinEndDate(dateFormat(dateStr));
-            setParams({ ...params, start: dateStr, end: '' });
+            setMinEndDate(dateStr);
+            setParams({
+                ...params,
+                start: dateStr,
+                end: params.end || dateStr, // ✅ end가 비었으면 start랑 똑같이 설정
+            });
         }
     };
     const changeValue = (e: any) => {
@@ -250,20 +257,50 @@ const Calendar = () => {
                         <div className="text-lg font-semibold ltr:sm:text-left rtl:sm:text-right text-center">Calendar</div>
                         <div className="flex items-center mt-2 flex-wrap sm:justify-start justify-center">
                             <div className="flex items-center ltr:mr-4 rtl:ml-4">
-                                <div className="h-2.5 w-2.5 rounded-sm ltr:mr-2 rtl:ml-2 bg-primary"></div>
-                                <div>Work</div>
+                                <div className="h-2.5 w-2.5 rounded-sm ltr:mr-2 rtl:ml-2 bg-fuchsia-500"></div>
+                                <div>프론트엔드</div>
                             </div>
                             <div className="flex items-center ltr:mr-4 rtl:ml-4">
                                 <div className="h-2.5 w-2.5 rounded-sm ltr:mr-2 rtl:ml-2 bg-info"></div>
-                                <div>Travel</div>
+                                <div>데이터베이스</div>
                             </div>
                             <div className="flex items-center ltr:mr-4 rtl:ml-4">
-                                <div className="h-2.5 w-2.5 rounded-sm ltr:mr-2 rtl:ml-2 bg-success"></div>
-                                <div>Personal</div>
+                                <div className="h-2.5 w-2.5 rounded-sm ltr:mr-2 rtl:ml-2 bg-blue-500"></div>
+                                <div>서버구축</div>
                             </div>
-                            <div className="flex items-center">
-                                <div className="h-2.5 w-2.5 rounded-sm ltr:mr-2 rtl:ml-2 bg-danger"></div>
-                                <div>Important</div>
+                            <div className="flex items-center ltr:mr-4 rtl:ml-4">
+                                <div className="h-2.5 w-2.5 rounded-sm ltr:mr-2 rtl:ml-2 bg-red-500"></div>
+                                <div>Cloud </div>
+                            </div>
+                           
+                            <div className="flex items-center ltr:mr-4 rtl:ml-4">
+                                <div className="h-2.5 w-2.5 rounded-sm ltr:mr-2 rtl:ml-2 bg-orange-400"></div>       
+                                <div>면접특강</div>
+                            </div>
+                            <div className="flex items-center ltr:mr-4 rtl:ml-4">
+                                <div className="h-2.5 w-2.5 rounded-sm ltr:mr-2 rtl:ml-2 bg-amber-400"></div>
+                                <div>커리어특강</div>
+                            </div>
+                            <div className="flex items-center ltr:mr-4 rtl:ml-4">
+                                <div className="h-2.5 w-2.5 rounded-sm ltr:mr-2 rtl:ml-2 bg-lime-400"></div>
+                                <div>2D</div>
+                            </div>
+                            <div className="flex items-center ltr:mr-4 rtl:ml-4">
+                                <div className="h-2.5 w-2.5 rounded-sm ltr:mr-2 rtl:ml-2 bg-green-400"></div>
+                                <div>3D </div>
+                            </div>
+                           
+                            <div className="flex items-center ltr:mr-4 rtl:ml-4">
+                                <div className="h-2.5 w-2.5 rounded-sm ltr:mr-2 rtl:ml-2 bg-cyan-400"></div>       
+                                <div>수료식</div>
+                            </div>
+                            <div className="flex items-center ltr:mr-4 rtl:ml-4">
+                                <div className="h-2.5 w-2.5 rounded-sm ltr:mr-2 rtl:ml-2 bg-rose-500"></div>
+                                <div>OT </div>
+                            </div>
+                            <div className="flex items-center ltr:mr-4 rtl:ml-4">
+                                <div className="h-2.5 w-2.5 rounded-sm ltr:mr-2 rtl:ml-2 bg-violet-500"></div>
+                                <div>취업특강 </div>
                             </div>
                         </div>
                     </div>
@@ -271,6 +308,7 @@ const Calendar = () => {
                         <IconPlus className="ltr:mr-2 rtl:ml-2" />
                         Create Event
                     </button>
+                    
                 </div>
                 <div className="calendar-wrapper">
                     <FullCalendar
@@ -281,6 +319,7 @@ const Calendar = () => {
                             center: 'title',
                             right: 'dayGridMonth,timeGridWeek,timeGridDay',
                         }}
+                        eventTimeFormat={{ hour: '2-digit', minute: '2-digit', hour12: false }}
                         editable={true}
                         dayMaxEvents={true}
                         selectable={true}
@@ -334,6 +373,7 @@ const Calendar = () => {
                                             <div>
                                                 <label htmlFor="title">Event Title :</label>
                                                 <input
+                                                  ref={titleRef}
                                                     id="title"
                                                     type="text"
                                                     name="title"
@@ -349,12 +389,13 @@ const Calendar = () => {
                                             <div>
                                                 <label htmlFor="dateStart">From :</label>
                                                 <input
+                                                  ref={startRef}
                                                     id="start"
                                                     type="datetime-local"
                                                     name="start"
                                                     className="form-input"
                                                     placeholder="Event Start Date"
-                                                    value={params.start || ''}
+                                                    value={params.start}
                                                     min={minStartDate}
                                                     onChange={(event: any) => startDateChange(event)}
                                                     required
@@ -364,6 +405,7 @@ const Calendar = () => {
                                             <div>
                                                 <label htmlFor="dateEnd">To :</label>
                                                 <input
+                                                 ref={endRef}
                                                     id="end"
                                                     type="datetime-local"
                                                     name="end"
@@ -388,58 +430,71 @@ const Calendar = () => {
                                                 ></textarea>
                                             </div>
                                             <div>
-                                                <label>Badge:</label>
+                                                {/* <label>Badge:</label> */}
                                                 <div className="mt-3">
+                                               
                                                     <label className="inline-flex cursor-pointer ltr:mr-3 rtl:ml-3">
                                                         <input
-                                                            type="radio"
-                                                            className="form-radio"
-                                                            name="type"
-                                                            value="primary"
-                                                            checked={params.type === 'primary'}
-                                                            onChange={(e) => setParams({ ...params, type: e.target.value })}
-                                                        />
-                                                        <span className="ltr:pl-2 rtl:pr-2">Work</span>
+                                                    type="radio"
+                                                    className="form-radio text-front"
+                                                    name="type"
+                                                    value="frontend"
+                                                    checked={params.type === 'frontend'}
+                                                    onChange={(e) => setParams({ ...params, type: e.target.value })}
+                                                    />
+
+                                                        <span className="ltr:pl-2 rtl:pr-2">프론트엔드</span>
                                                     </label>
+                                                     <label className="inline-flex cursor-pointer ltr:mr-3 rtl:ml-3">
+                                                        <input
+                                                            type="radio"
+                                                            className="form-radio text-database"
+                                                            name="type"
+                                                            value="database"
+                                                            checked={params.type === 'database'}
+                                                            onChange={(e) => setParams({ ...params, type: e.target.value })}
+                                                        />
+                                                        <span className="ltr:pl-2 rtl:pr-2">데이터베이스</span>
+                                                    </label> 
                                                     <label className="inline-flex cursor-pointer ltr:mr-3 rtl:ml-3">
                                                         <input
                                                             type="radio"
-                                                            className="form-radio text-info"
+                                                            className="form-radio text-server"
                                                             name="type"
-                                                            value="info"
-                                                            checked={params.type === 'info'}
+                                                            value="server"
+                                                            checked={params.type === 'server'}
                                                             onChange={(e) => setParams({ ...params, type: e.target.value })}
                                                         />
-                                                        <span className="ltr:pl-2 rtl:pr-2">Travel</span>
-                                                    </label>
-                                                    <label className="inline-flex cursor-pointer ltr:mr-3 rtl:ml-3">
-                                                        <input
-                                                            type="radio"
-                                                            className="form-radio text-success"
-                                                            name="type"
-                                                            value="success"
-                                                            checked={params.type === 'success'}
-                                                            onChange={(e) => setParams({ ...params, type: e.target.value })}
-                                                        />
-                                                        <span className="ltr:pl-2 rtl:pr-2">Personal</span>
+                                                        <span className="ltr:pl-2 rtl:pr-2">서버구축</span>
                                                     </label>
                                                     <label className="inline-flex cursor-pointer">
                                                         <input
                                                             type="radio"
-                                                            className="form-radio text-danger"
+                                                            className="form-radio text-cloud"
                                                             name="type"
-                                                            value="danger"
-                                                            checked={params.type === 'danger'}
+                                                            value="cloud"
+                                                            checked={params.type === 'cloud'}
                                                             onChange={(e) => setParams({ ...params, type: e.target.value })}
                                                         />
-                                                        <span className="ltr:pl-2 rtl:pr-2">Important</span>
+                                                        <span className="ltr:pl-2 rtl:pr-2">클라우드</span>
                                                     </label>
                                                 </div>
                                             </div>
-                                            <div className="flex justify-end items-center !mt-8">
+                                            
+                                            <div className="flex justify-end items-center mt-8 space-x-4">
                                                 <button type="button" className="btn btn-outline-danger" onClick={() => setIsAddEventModal(false)}>
                                                     Cancel
                                                 </button>
+                                                
+                                                {params.id && (
+                                                <button
+                                                    type="button"
+                                                    className="btn btn-outline-danger"
+                                                    onClick={() => deleteEvent(params.id)}
+                                                >
+                                                    Delete
+                                                </button>
+                                            )}
                                                 <button type="button" onClick={() => saveEvent()} className="btn btn-primary ltr:ml-4 rtl:mr-4">
                                                     {params.id ? 'Update Event' : 'Create Event'}
                                                 </button>

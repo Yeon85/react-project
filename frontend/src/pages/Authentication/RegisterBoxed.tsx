@@ -13,10 +13,16 @@ import IconInstagram from '../../components/Icon/IconInstagram';
 import IconFacebookCircle from '../../components/Icon/IconFacebookCircle';
 import IconTwitter from '../../components/Icon/IconTwitter';
 import IconGoogle from '../../components/Icon/IconGoogle';
-import axios from 'axios'; // 위에 추가
+
+//추가
+import axios from 'axios'; 
+import { loginUser } from '../../store/userSlice'; // ✅ loginUser 액션 가져오기
+import ApplicationConfig from '../../application';
 
 const RegisterBoxed = () => {
+
     const [name, setName] = useState('');
+    const [userId, setUserId] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
@@ -38,25 +44,41 @@ const RegisterBoxed = () => {
     };
     const [flag, setFlag] = useState(themeConfig.locale);
 
-    // const submitForm = () => {
-    //     navigate('/');
-    // };
+    const API_URL = ApplicationConfig.API_URL;
+    console.log("API_URL:",API_URL);
 
     const submitForm = async (e: React.FormEvent) => {
         console.log("e: React.FormEvent:",e);
         e.preventDefault();
-    
+        let response;
         try {
-            const response = await axios.post('http://localhost:5000/api/register', {
+           
+            response = await axios.post(`${API_URL}/api/register`, { 
+                userId,
                 name,
                 email,
                 password,
             });
-    
-            console.log('회원가입 성공:', response.data);
-            navigate('/'); // 성공 후 홈으로 이동
-        } catch (error) {
-            console.error('회원가입 실패:', error);
+            const userData = response;  // ✅ 여기 수정
+            console.log("!!!!!userData:",userData.data.user);
+            dispatch(loginUser(userData.data.user));
+         
+            // 2. 알림
+            alert('🚀환영합니다.');
+         
+
+            if (response.data.user.user_extra) {
+                navigate('/'); // 메인으로
+            } else {
+                navigate('/survey'); // 추가정보 작성페이지로
+            }
+
+        } catch (error: any) {
+            if (error.response) {
+                alert(error.response.data); // 에러 메시지 표시
+            } else {
+                alert('로그인 중 오류 발생!');
+            }
         }
     };
 
@@ -116,10 +138,27 @@ const RegisterBoxed = () => {
                         </div>
                         <div className="mx-auto w-full max-w-[440px]">
                             <div className="mb-10">
-                                <h1 className="text-3xl font-extrabold uppercase !leading-snug text-primary md:text-4xl">Sign Up</h1>
+                                <h1 className="text-3xl font-extrabold uppercase !leading-snug text-primary md:text-4xl">회원 가입</h1>
                                 <p className="text-base font-bold leading-normal text-white-dark">Enter your email and password to register</p>
                             </div>
                             <form className="space-y-5 dark:text-white" onSubmit={submitForm}>
+                            <div>
+                                    <label htmlFor="userId">ID</label>
+                                    <div className="relative text-white-dark">
+                                    <input
+                                        id="userId"
+                                        type="text"
+                                        value={userId}
+                                        onChange={(e) => setUserId(e.target.value)}
+                                        placeholder="Enter Id"
+                                        className="form-input ps-10 placeholder:text-white-dark"
+                                    />
+                                        {/* <input id="Name" type="text" placeholder="Enter Name" className="form-input ps-10 placeholder:text-white-dark" /> */}
+                                        <span className="absolute start-4 top-1/2 -translate-y-1/2">
+                                            <IconUser fill={true} />
+                                        </span>
+                                    </div>
+                                </div>
                                 <div>
                                     <label htmlFor="Name">Name</label>
                                     <div className="relative text-white-dark">
@@ -137,6 +176,7 @@ const RegisterBoxed = () => {
                                         </span>
                                     </div>
                                 </div>
+
                                 <div>
                                     <label htmlFor="Email">Email</label>
                                     <div className="relative text-white-dark">
@@ -181,7 +221,7 @@ const RegisterBoxed = () => {
                                     </label>
                                 </div>
                                 <button type="submit" className="btn btn-gradient !mt-6 w-full border-0 uppercase shadow-[0_10px_20px_-10px_rgba(67,97,238,0.44)]">
-                                    Sign Up
+                                    회원 가입1
                                 </button>
                             </form>
                             <div className="relative my-7 text-center md:mb-9">
@@ -231,7 +271,7 @@ const RegisterBoxed = () => {
                             <div className="text-center dark:text-white">
                                 Already have an account ?&nbsp;
                                 <Link to="/auth/boxed-signin" className="uppercase text-primary underline transition hover:text-black dark:hover:text-white">
-                                    SIGN IN
+                                    로그인 (sign in)
                                 </Link>
                             </div>
                         </div>
